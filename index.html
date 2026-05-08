@@ -9,10 +9,10 @@
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="canvas_data.js"></script>
     <style>
         body { 
             background-color: #050505; 
-            /* Animated Cyber Grid Background */
             background-image: 
                 radial-gradient(circle at 50% 0%, #2a1147 0%, transparent 60%),
                 linear-gradient(rgba(192, 132, 252, 0.04) 1px, transparent 1px),
@@ -23,19 +23,11 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
         }
         
-        /* Subtle radar scanner line sweeping down the screen */
         .scanner-line {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 2px;
             background: linear-gradient(to right, transparent, #c084fc, transparent);
-            opacity: 0.3;
-            box-shadow: 0 0 15px #c084fc;
-            animation: scan 8s linear infinite;
-            pointer-events: none;
-            z-index: -1;
+            opacity: 0.3; box-shadow: 0 0 15px #c084fc;
+            animation: scan 8s linear infinite; pointer-events: none; z-index: -1;
         }
         @keyframes scan {
             0% { top: -10px; opacity: 0; }
@@ -48,27 +40,15 @@
         .neon-cyan { color: #22d3ee; text-shadow: 0 0 12px rgba(34, 211, 238, 0.5); }
         .neon-red { color: #ef4444; text-shadow: 0 0 12px rgba(239, 68, 68, 0.6); }
         
-        /* Enhanced Glassmorphism for Cards */
         .card-bg { 
-            background: rgba(24, 24, 27, 0.6); 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(192, 132, 252, 0.1); 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); 
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: rgba(24, 24, 27, 0.6); backdrop-filter: blur(12px);
+            border: 1px solid rgba(192, 132, 252, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); 
         }
-        .card-bg:hover {
-            box-shadow: 0 8px 32px rgba(192, 132, 252, 0.15); 
-        }
-        
         .glass-header { 
-            background: rgba(15, 15, 18, 0.85); 
-            backdrop-filter: blur(16px); 
+            background: rgba(15, 15, 18, 0.85); backdrop-filter: blur(16px); 
             border-bottom: 1px solid rgba(192, 132, 252, 0.2); 
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #050505; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; border: 1px solid #18181b; }
@@ -86,24 +66,9 @@
             const [searchTerm, setSearchTerm] = useState("");
             const [filterStatus, setFilterStatus] = useState("ALL");
 
-            // Explicitly adding Maricopa and Glendale data
-            const data = {
-                total_tokens: 1422,
-                active_tokens: 418,
-                pii_exposed: "412,500+",
-                avg_mttr: "18.4 Days",
-                recent_leaks: [
-                    { prefix: "71~9921...aBcD", type: "Maricopa Community Colleges", endpoint: "/api/v1/courses/:id/users", status: "ACTIVE", risk: "CRITICAL", date: "2026-05-08" },
-                    { prefix: "1~4421...zYxW", type: "Glendale Community College", endpoint: "/api/v1/conversations", status: "ACTIVE", risk: "CRITICAL", date: "2026-05-08" },
-                    { prefix: "71~8842...xYz1", type: "State University System", endpoint: "/api/v1/courses/:id/users", status: "ACTIVE", risk: "CRITICAL", date: "2026-05-08" },
-                    { prefix: "71~3319...qWeR", type: "Global Tech Bootcamp", endpoint: "/api/v1/users/self/profile", status: "REVOKED", risk: "LOW", date: "2026-05-07" },
-                    { prefix: "1~9920...kLmN", type: "Online High School Dist.", endpoint: "/api/v1/users/self/files", status: "ACTIVE", risk: "HIGH", date: "2026-05-06" },
-                    { prefix: "71~1288...mKoP", type: "Maricopa Community Colleges", endpoint: "/api/v1/users/self", status: "REVOKED", risk: "LOW", date: "2026-05-06" },
-                    { prefix: "71~1102...pPqQ", type: "European Med School", endpoint: "/api/v1/courses", status: "REVOKED", risk: "LOW", date: "2026-05-05" },
-                    { prefix: "71~5541...mNbV", type: "Midwest State College", endpoint: "/api/v1/accounts/:id/users", status: "ACTIVE", risk: "CRITICAL", date: "2026-05-05" },
-                    { prefix: "1~2234...lPoI", type: "Private Ivy League", endpoint: "/api/v1/users/self", status: "REVOKED", risk: "MEDIUM", date: "2026-05-04" },
-                    { prefix: "71~8910...vVbB", type: "Glendale Community College", endpoint: "/api/v1/courses/:id/assignments", status: "ACTIVE", risk: "HIGH", date: "2026-05-03" }
-                ]
+            // Data is now loaded from window.canvasThreatData (generated by python)
+            const data = window.canvasThreatData || {
+                total_tokens: 0, active_tokens: 0, pii_exposed: "0", avg_mttr: "0 Days", recent_leaks: []
             };
 
             const filteredLeaks = useMemo(() => {
@@ -116,6 +81,25 @@
                 });
             }, [searchTerm, filterStatus, data.recent_leaks]);
 
+            const handleExportCSV = () => {
+                const headers = ["Detected Date", "Token Prefix", "Institution", "Blast Radius Endpoint", "Status", "Risk Level"];
+                const csvRows = [headers.join(",")];
+                
+                filteredLeaks.forEach(row => {
+                    // Wrap institution in quotes to prevent comma issues in CSV
+                    csvRows.push(`${row.date},${row.prefix},"${row.type}",${row.endpoint},${row.status},${row.risk}`);
+                });
+
+                const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `shadow_radar_export_${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
             return (
                 <div className="min-h-screen pb-12 relative z-10">
                     <header className="glass-header sticky top-0 z-50 px-8 py-4 flex items-center justify-between">
@@ -127,8 +111,8 @@
                             <p className="text-zinc-400 mt-1 text-xs uppercase tracking-widest font-mono">AWS Macie Data Classification Active</p>
                         </div>
                         <div className="flex gap-4">
-                            <button className="flex items-center gap-2 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 px-4 py-2 rounded border border-zinc-700 text-sm transition-colors shadow-lg">
-                                <i className="fa-solid fa-download"></i> Export CSV
+                            <button onClick={handleExportCSV} className="flex items-center gap-2 bg-zinc-900/80 hover:bg-purple-900/40 text-zinc-300 hover:text-white px-4 py-2 rounded border border-zinc-700 hover:border-purple-500 text-sm transition-all shadow-lg">
+                                <i className="fa-solid fa-download"></i> Export CSV ({filteredLeaks.length})
                             </button>
                             <div className="flex items-center gap-2 bg-purple-900/30 text-purple-300 px-4 py-2 rounded border border-purple-500/50 text-sm font-mono shadow-[0_0_15px_rgba(192,132,252,0.2)] backdrop-blur-sm">
                                 <span className="relative flex h-3 w-3 mr-1">
@@ -141,7 +125,6 @@
                     </header>
 
                     <main className="p-8 max-w-7xl mx-auto mt-6">
-                        {/* Top Metrics */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                             <div className="card-bg p-6 rounded-xl border-t-2 border-t-purple-500">
                                 <h3 className="text-zinc-400 text-xs font-bold mb-2 uppercase tracking-wider">Total Leaks (30D)</h3>
@@ -151,10 +134,7 @@
                                 <h3 className="text-zinc-400 text-xs font-bold mb-2 uppercase tracking-wider">Active Tokens</h3>
                                 <p className="text-5xl font-black neon-cyan">{data.active_tokens}</p>
                             </div>
-                            <div className="card-bg p-6 rounded-xl border-t-2 border-t-red-500 relative overflow-hidden group">
-                                <div className="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity text-red-500 transform group-hover:scale-110 duration-500">
-                                    <i className="fa-solid fa-triangle-exclamation text-8xl"></i>
-                                </div>
+                            <div className="card-bg p-6 rounded-xl border-t-2 border-t-red-500 relative overflow-hidden">
                                 <h3 className="text-zinc-400 text-xs font-bold mb-2 uppercase tracking-wider relative z-10">PII Records at Risk</h3>
                                 <p className="text-5xl font-black neon-red relative z-10">{data.pii_exposed}</p>
                             </div>
@@ -164,24 +144,23 @@
                             </div>
                         </div>
 
-                        {/* Search and Filter Controls */}
                         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
                             <div className="relative w-full md:w-[28rem]">
                                 <i className="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-500"></i>
                                 <input 
                                     type="text" 
-                                    placeholder="Query Institution (e.g. Maricopa), Token, or Endpoint..." 
-                                    className="w-full bg-zinc-900/80 border border-zinc-700 text-white rounded-lg pl-11 pr-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition-all font-mono text-sm shadow-inner backdrop-blur-md"
+                                    placeholder="Search 9,000+ Institutions, Tokens, or Endpoints..." 
+                                    className="w-full bg-zinc-900/80 border border-zinc-700 text-white rounded-lg pl-11 pr-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition-all font-mono text-sm"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
-                            <div className="flex bg-zinc-900/80 rounded-lg p-1.5 border border-zinc-700 backdrop-blur-md shadow-lg">
+                            <div className="flex bg-zinc-900/80 rounded-lg p-1.5 border border-zinc-700 shadow-lg">
                                 {['ALL', 'ACTIVE', 'REVOKED'].map(status => (
                                     <button 
                                         key={status}
                                         onClick={() => setFilterStatus(status)}
-                                        className={`px-6 py-2 rounded-md text-xs font-bold tracking-wider transition-all duration-200 ${filterStatus === status ? (status === 'ACTIVE' ? 'bg-red-900/40 text-red-400 border border-red-900/50 shadow-[0_0_10px_rgba(239,68,68,0.2)]' : 'bg-purple-900/40 text-purple-300 border border-purple-700/50 shadow-[0_0_10px_rgba(192,132,252,0.2)]') : 'text-zinc-500 hover:text-zinc-300 border border-transparent'}`}
+                                        className={`px-6 py-2 rounded-md text-xs font-bold tracking-wider transition-all duration-200 ${filterStatus === status ? (status === 'ACTIVE' ? 'bg-red-900/40 text-red-400 border border-red-900/50' : 'bg-purple-900/40 text-purple-300 border border-purple-700/50') : 'text-zinc-500 hover:text-zinc-300 border border-transparent'}`}
                                     >
                                         {status}
                                     </button>
@@ -189,51 +168,50 @@
                             </div>
                         </div>
                         
-                        {/* Data Table */}
-                        <div className="card-bg rounded-xl overflow-hidden shadow-2xl border border-zinc-800">
-                            <table className="w-full text-left text-sm">
-                                <thead className="bg-zinc-900/90 text-zinc-400 border-b border-zinc-700/50 backdrop-blur-xl">
-                                    <tr>
-                                        <th className="px-6 py-5 font-bold uppercase tracking-wider text-xs">Detected</th>
-                                        <th className="px-6 py-5 font-bold uppercase tracking-wider text-xs">Token Prefix</th>
-                                        <th className="px-6 py-5 font-bold uppercase tracking-wider text-xs">Institution Type</th>
-                                        <th className="px-6 py-5 font-bold uppercase tracking-wider text-xs">Blast Radius (Endpoint)</th>
-                                        <th className="px-6 py-5 font-bold uppercase tracking-wider text-xs text-right">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-zinc-800/50 bg-zinc-900/30">
-                                    {filteredLeaks.map((incident, idx) => (
-                                        <tr key={idx} className="hover:bg-purple-900/10 transition-colors duration-200 group">
-                                            <td className="px-6 py-4 text-zinc-500 font-mono text-xs">{incident.date}</td>
-                                            <td className="px-6 py-4 font-mono text-zinc-300 group-hover:text-purple-400 group-hover:shadow-purple-500 transition-colors">{incident.prefix}</td>
-                                            <td className="px-6 py-4 text-zinc-200 font-medium group-hover:text-white transition-colors">{incident.type}</td>
-                                            <td className="px-6 py-4 font-mono text-cyan-400 text-xs group-hover:text-cyan-300 transition-colors">{incident.endpoint}</td>
-                                            <td className="px-6 py-4 text-right">
-                                                {incident.status === "ACTIVE" ? (
-                                                    <span className="inline-flex items-center gap-1.5 bg-red-900/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold border border-red-900/50 shadow-[0_0_15px_rgba(239,68,68,0.3)]">
-                                                        <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_#ef4444]"></span>
-                                                        ACTIVE
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center gap-1.5 bg-zinc-800/50 text-zinc-500 px-3 py-1 rounded-full text-xs font-bold border border-zinc-700">
-                                                        <i className="fa-solid fa-ban text-[10px]"></i>
-                                                        REVOKED
-                                                    </span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {filteredLeaks.length === 0 && (
+                        <div className="card-bg rounded-xl shadow-2xl border border-zinc-800 flex flex-col">
+                            <div className="overflow-y-auto max-h-[600px] rounded-xl">
+                                <table className="w-full text-left text-sm relative">
+                                    <thead className="bg-zinc-900/90 text-zinc-400 border-b border-zinc-700/50 sticky top-0 z-20 backdrop-blur-xl">
                                         <tr>
-                                            <td colSpan="5" className="px-6 py-16 text-center text-zinc-500">
-                                                <i className="fa-solid fa-satellite-dish text-5xl mb-4 block opacity-30 animate-pulse text-purple-500"></i>
-                                                <p className="font-mono text-lg text-zinc-400">NO INTELLIGENCE MATCHES QUERY.</p>
-                                                <p className="text-sm mt-2 opacity-50">Adjust filters or search terms.</p>
-                                            </td>
+                                            <th className="px-6 py-5 font-bold uppercase tracking-wider text-xs">Detected</th>
+                                            <th className="px-6 py-5 font-bold uppercase tracking-wider text-xs">Token Prefix</th>
+                                            <th className="px-6 py-5 font-bold uppercase tracking-wider text-xs">Institution Type</th>
+                                            <th className="px-6 py-5 font-bold uppercase tracking-wider text-xs">Blast Radius (Endpoint)</th>
+                                            <th className="px-6 py-5 font-bold uppercase tracking-wider text-xs text-right">Status</th>
                                         </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="divide-y divide-zinc-800/50 bg-zinc-900/30">
+                                        {filteredLeaks.map((incident, idx) => (
+                                            <tr key={idx} className="hover:bg-purple-900/10 transition-colors duration-200 group">
+                                                <td className="px-6 py-4 text-zinc-500 font-mono text-xs">{incident.date}</td>
+                                                <td className="px-6 py-4 font-mono text-zinc-300 group-hover:text-purple-400 transition-colors">{incident.prefix}</td>
+                                                <td className="px-6 py-4 text-zinc-200 font-medium group-hover:text-white transition-colors">{incident.type}</td>
+                                                <td className="px-6 py-4 font-mono text-cyan-400 text-xs">{incident.endpoint}</td>
+                                                <td className="px-6 py-4 text-right">
+                                                    {incident.status === "ACTIVE" ? (
+                                                        <span className="inline-flex items-center gap-1.5 bg-red-900/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold border border-red-900/50">
+                                                            <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                                            ACTIVE
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1.5 bg-zinc-800/50 text-zinc-500 px-3 py-1 rounded-full text-xs font-bold border border-zinc-700">
+                                                            <i className="fa-solid fa-ban text-[10px]"></i>
+                                                            REVOKED
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {filteredLeaks.length === 0 && (
+                                            <tr>
+                                                <td colSpan="5" className="px-6 py-16 text-center text-zinc-500">
+                                                    <p className="font-mono text-lg text-zinc-400">NO INTELLIGENCE MATCHES QUERY.</p>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </main>
                 </div>
