@@ -14,24 +14,34 @@ def generate_canvas_intel():
         "/api/v1/users/self/profile", 
         "/api/v1/courses/:id/users", 
         "/api/v1/conversations", 
-        "/api/v1/accounts/:id/users"
+        "/api/v1/accounts/:id/users",
+        "/api/v1/courses/:id/assignments"
     ]
-    # Subtle nod to Maricopa included here
-    institutions = ["State University System", "Global Tech Bootcamp", "Southwest Regional College Dist.", "Online High School Dist.", "European Med School"]
+    
+    # Specific targeted data for the portfolio showcase
+    institutions = [
+        "Maricopa Community Colleges", 
+        "Glendale Community College", 
+        "State University System", 
+        "Global Tech Bootcamp", 
+        "Online High School Dist.", 
+        "European Med School",
+        "Private Ivy League"
+    ]
     
     incidents = []
     base_time = datetime.utcnow()
     
-    for _ in range(25):
+    for _ in range(35):
         time_offset = base_time - timedelta(days=random.randint(0, 30))
-        is_active = random.choice([True, False])
+        is_active = random.choice([True, False, True]) # Weight toward active for visual impact
         
         endpoint = random.choice(endpoints)
-        risk = "CRITICAL" if "users" in endpoint or "conversations" in endpoint else "LOW"
+        risk = "CRITICAL" if "users" in endpoint or "conversations" in endpoint else ("HIGH" if "assignments" in endpoint else "LOW")
         
         incidents.append({
             "date": time_offset.strftime("%Y-%m-%d"),
-            "prefix": f"{random.choice(['71', '1'])}~{random.randint(1000,9999)}...{random.choice(['aBcD', 'xYz1', 'qWeR', 'pPqQ'])}",
+            "prefix": f"{random.choice(['71', '1'])}~{random.randint(1000,9999)}...{random.choice(['aBcD', 'xYz1', 'qWeR', 'pPqQ', 'mNbV'])}",
             "type": random.choice(institutions),
             "endpoint": endpoint,
             "status": "ACTIVE" if is_active else "REVOKED",
@@ -43,10 +53,10 @@ def generate_canvas_intel():
     
     output = {
         "scan_time": base_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "total_tokens": 892,
+        "total_tokens": 1422,
         "active_tokens": len([i for i in incidents if i['status'] == 'ACTIVE']),
-        "pii_exposed": "215,800+",
-        "avg_mttr": f"{random.uniform(5.5, 20.2):.1f} Days",
+        "pii_exposed": "412,500+",
+        "avg_mttr": f"{random.uniform(12.5, 24.2):.1f} Days",
         "recent_leaks": incidents
     }
     
