@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Shadow Radar | EdTech API Threat Intel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #09090b; color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .neon-purple { color: #c084fc; text-shadow: 0 0 10px rgba(192, 132, 252, 0.5); }
+        .neon-cyan { color: #22d3ee; }
+        .card-bg { background-color: #18181b; border: 1px solid #27272a; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .glass-header { background: rgba(24, 24, 27, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid #27272a; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        function App() {
+            const data = {
+                total_tokens: 342,
+                active_tokens: 128,
+                pii_exposed: "85,400+",
+                recent_leaks: [
+                    { prefix: "71~8842...xYz1", type: "State University System", endpoint: "/api/v1/courses", status: "ACTIVE - PII AT RISK", risk: "HIGH" },
+                    { prefix: "1~4992...aBcD", type: "Ivy League Network", endpoint: "/api/v1/conversations", status: "ACTIVE - PII AT RISK", risk: "HIGH" },
+                    { prefix: "71~3319...qWeR", type: "Global Tech Bootcamp", endpoint: "/api/v1/users/self/profile", status: "REVOKED", risk: "LOW" },
+                    { prefix: "1~9920...kLmN", type: "Online High School Dist.", endpoint: "/api/v1/users/self/files", status: "ACTIVE - PII AT RISK", risk: "CRITICAL" },
+                    { prefix: "71~1102...pPqQ", type: "European Med School", endpoint: "/api/v1/courses", status: "REVOKED", risk: "LOW" }
+                ]
+            };
+
+            return (
+                <div className="min-h-screen">
+                    <header className="glass-header sticky top-0 z-50 px-8 py-5 flex items-center justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold flex items-center gap-3">
+                                <i className="fa-solid fa-graduation-cap neon-purple"></i>
+                                Canvas Shadow Radar
+                            </h1>
+                            <p className="text-zinc-400 mt-1 text-xs uppercase tracking-widest">EdTech API Threat Intelligence</p>
+                        </div>
+                        <div className="flex items-center gap-2 bg-purple-900/20 text-purple-400 px-4 py-2 rounded border border-purple-800/50 text-sm font-mono">
+                            <i className="fa-solid fa-satellite-dish animate-pulse"></i> SCANNING GITHUB PIPELINES
+                        </div>
+                    </header>
+
+                    <main className="p-8 max-w-7xl mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div className="card-bg p-6 rounded-xl border-t-4 border-t-purple-500">
+                                <h3 className="text-zinc-400 text-sm font-semibold mb-2">Total Tokens Leaked (7 Days)</h3>
+                                <p className="text-5xl font-black text-white">{data.total_tokens}</p>
+                                <p className="text-xs text-zinc-500 mt-2 font-mono">Pattern: ^71~[A-Za-z0-9]+</p>
+                            </div>
+                            <div className="card-bg p-6 rounded-xl border-t-4 border-t-cyan-400">
+                                <h3 className="text-zinc-400 text-sm font-semibold mb-2">Currently Active / Valid</h3>
+                                <p className="text-5xl font-black neon-cyan">{data.active_tokens}</p>
+                                <p className="text-xs text-zinc-500 mt-2">Verified via /api/v1/users/self</p>
+                            </div>
+                            <div className="card-bg p-6 rounded-xl border-t-4 border-t-red-500">
+                                <h3 className="text-zinc-400 text-sm font-semibold mb-2">Estimated PII Records at Risk</h3>
+                                <p className="text-5xl font-black text-red-500">{data.pii_exposed}</p>
+                                <p className="text-xs text-zinc-500 mt-2">FERPA Compliance Violation Risk</p>
+                            </div>
+                        </div>
+
+                        <h2 className="text-lg font-bold mb-4 text-zinc-300 flex items-center gap-2">
+                            <i className="fa-solid fa-list-ul neon-purple"></i> Latest Discovered Exposures
+                        </h2>
+                        
+                        <div className="card-bg rounded-xl overflow-hidden">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-zinc-900 text-zinc-400 border-b border-zinc-800">
+                                    <tr>
+                                        <th className="px-6 py-4 font-semibold">Token Prefix</th>
+                                        <th className="px-6 py-4 font-semibold">Institution Type</th>
+                                        <th className="px-6 py-4 font-semibold">Highest Accessible Endpoint</th>
+                                        <th className="px-6 py-4 font-semibold">FERPA Risk</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-zinc-800">
+                                    {data.recent_leaks.map((incident, idx) => (
+                                        <tr key={idx} className="hover:bg-zinc-800/50 transition-colors">
+                                            <td className="px-6 py-4 font-mono text-zinc-300">{incident.prefix}</td>
+                                            <td className="px-6 py-4 text-zinc-400">{incident.type}</td>
+                                            <td className="px-6 py-4 font-mono text-cyan-400">{incident.endpoint}</td>
+                                            <td className="px-6 py-4">
+                                                {incident.risk === "HIGH" || incident.risk === "CRITICAL" ? (
+                                                    <span className="bg-red-900/30 text-red-400 px-3 py-1 rounded-full text-xs font-bold border border-red-900/50">
+                                                        {incident.status}
+                                                    </span>
+                                                ) : (
+                                                    <span className="bg-zinc-800 text-zinc-500 px-3 py-1 rounded-full text-xs font-bold border border-zinc-700">
+                                                        {incident.status}
+                                                    </span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
